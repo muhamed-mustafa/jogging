@@ -1,0 +1,48 @@
+apiVersion : apps/v1
+kind : Deployment
+metadata :
+  name : jogging-depl
+spec :
+  replicas : 1
+  selector :
+    matchLabels :
+      app : jogging
+  template :
+    metadata : 
+      labels :
+        app : jogging
+    spec :
+      containers :
+        - name  : jogging
+          image : muhammedmustafa/jogging
+          env :
+            - name  : MONGO_URI
+              value : mongodb://jogging-mongo-srv:27017/jogging
+            - name  : CLOUDINARY_NAME
+              value : microservices
+            - name  : CLOUDINARY_API_KEY
+              value : "811727343751112"
+            - name  : CLOUDINARY_SECRET_KEY
+              valueFrom :
+                secretKeyRef :
+                  name  : cloudinary-secret
+                  key   : CLOUDINARY_SECRET_KEY
+            - name : JWT_KEY
+              valueFrom :
+                secretKeyRef :
+                  name  : jwt-secret
+                  key : JWT_KEY           
+--- 
+
+apiVersion : v1
+kind : Service
+metadata : 
+  name : jogging-srv
+spec :
+  type : ClusterIP
+  selector :
+    app : jogging
+  ports :
+    - name : jogging
+      protocol : TCP
+      port : 3000
